@@ -1,0 +1,9 @@
+CREATE TABLE adm."Bitacora"(
+	"idEvento" BIGSERIAL NOT NULL,
+	"datoNuevo" TEXT NULL,
+	"datoViejo" TEXT NULL,
+	"fechaAccion" DATE NULL,
+	"horaAccion" TIME WITHOUT TIME ZONE NULL,
+	"accion" adm."Accion" NULL,
+	"usuario" VARCHAR NULL
+)

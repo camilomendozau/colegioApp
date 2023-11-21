@@ -1,0 +1,4 @@
+CREATE TRIGGER auditar_cambios_usern
+AFTER INSERT OR UPDATE OR DELETE ON adm."Usern"
+FOR EACH ROW
+EXECUTE FUNCTION adm.auditar_cambios_usuario();

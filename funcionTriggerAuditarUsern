@@ -1,0 +1,26 @@
+CREATE OR REPLACE FUNCTION adm."auditar_cambios_usuario"()
+RETURNS TRIGGER AS $$
+DECLARE
+    accion adm."Accion";
+	usuario_actual VARCHAR;
+BEGIN
+    SELECT "username" INTO usuario_actual FROM adm."Usern",adm."Sesion" 
+	WHERE "Sesion"."UserN_idUser"="Usern"."idUser"  
+	ORDER BY "fechaHoraInicioSesion" DESC LIMIT 1;
+    IF (TG_OP = 'UPDATE') THEN
+        accion := 'UPDATE';
+        INSERT INTO adm."Bitacora"("datoNuevo", "datoViejo", "fechaAccion", "horaAccion", "accion", "usuario")
+        VALUES (ROW_TO_JSON(NEW)::text, ROW_TO_JSON(OLD)::text, CURRENT_DATE, CURRENT_TIME, accion, usuario_actual);
+    ELSIF (TG_OP = 'INSERT') THEN
+        accion := 'INSERT';
+        INSERT INTO adm."Bitacora"("datoNuevo", "fechaAccion", "horaAccion", "accion", "usuario")
+        VALUES (ROW_TO_JSON(NEW)::text, CURRENT_DATE, CURRENT_TIME, accion, USER);
+    ELSIF (TG_OP = 'DELETE') THEN
+        accion := 'DELETE';
+        INSERT INTO adm."Bitacora"("datoViejo", "fechaAccion", "horaAccion", "accion", "usuario")
+        VALUES (ROW_TO_JSON(OLD)::text, CURRENT_DATE, CURRENT_TIME, accion, USER);
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;

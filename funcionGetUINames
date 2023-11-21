@@ -1,0 +1,23 @@
+CREATE OR REPLACE FUNCTION adm."getUINames"(IN usernm character varying)
+    RETURNS TABLE("uiNames" character varying)
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    PARALLEL UNSAFE
+    COST 100    ROWS 1000 
+    
+AS $BODY$
+BEGIN
+  RETURN QUERY 
+  SELECT "nombreUI"
+  FROM( SELECT "UI_idUI"
+	  FROM (SELECT "Funcion_idFuncion"
+		  FROM (SELECT "Rol_idRol"
+				FROM (SELECT "idUser"
+					  FROM adm."Usern"
+					  WHERE "Usern"."username"=usernm) uno, adm."Usern_rol"
+				WHERE "Usern_rol"."Usern_idUser"=uno."idUser") dos,adm."Rol_funcion"
+		   WHERE "Rol_funcion"."Rol_idRol"=dos."Rol_idRol") tres,adm."Funcion_ui"
+	  WHERE "Funcion_ui"."Funcion_idFuncion"=tres."Funcion_idFuncion") cuatro , adm."UI"
+  WHERE "UI_idUI"="UI"."idUI";	  
+END
+$BODY$;
